@@ -4,6 +4,6 @@ config/*
 client_secret-new.json
 ytPlaylist.json
 example.py
-.vsls.json
+*.vsls.json
 ytAuth.json
 __pycache__
