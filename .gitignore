@@ -1,0 +1,9 @@
+
+config/
+config/*
+client_secret-new.json
+ytPlaylist.json
+example.py
+.vsls.json
+ytAuth.json
+__pycache__
