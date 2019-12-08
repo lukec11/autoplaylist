@@ -1,5 +1,5 @@
 # autoplaylist
-Uses all Youtube, Spotify, and Apple Music links sent in the #music channel in the Hack Club slack and makes a playlist out of them in each service.
+Uses all Youtube, Spotify, Tidal, and SoundCloud links sent in the #music channel in the Hack Club slack and makes a playlist out of them in each service.
 
 Written in pure python3, created by [@lukec11](https://github.com/lukec11) and [@harbar20](https://github.com/harbar20).
 
