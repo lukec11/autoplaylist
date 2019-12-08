@@ -4,6 +4,7 @@ venv/
 .vscode/
 __pycache__/
 instance/
+playlists/
 .vsls.json
 .webassets-cache
 .cache*
