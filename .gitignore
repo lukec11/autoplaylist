@@ -1,6 +1,10 @@
 
 config/
+venv/
+.vscode/
 __pycache__/
-.vsls.json
 instance/
+.vsls.json
 .webassets-cache
+.cache*
+ytPlaylist.json
