@@ -25,13 +25,21 @@ def addToSpotify(uuid):
     else:
         ("Usage: {} username".format(sys.argv[0])) #This is entirely irrelevant, but the code doesn't run without it.
 
-    token = spotipy.util.prompt_for_user_token(spotifyUser,scope,client_id=spotifyClientId,client_secret=spotifyClientSecret,redirect_uri='http://localhost:9898/spotifyCallback') #Authorizes with Spotify using OAuth
+    token = spotipy.util.prompt_for_user_token(spotifyUser,
+                                               scope,
+                                               client_id=spotifyClientId,
+                                               client_secret=spotifyClientSecret,
+                                               redirect_uri='http://localhost:9898/spotifyCallback'
+                                               ) #Authorizes with Spotify using OAuth
 
 
     if token: #Adds song to playlist
         sp = spotipy.Spotify(auth=token)
         sp.trace = False #idk what this does but the docs told me to do it
-        results = sp.user_playlist_add_tracks(spotifyUser, spotifyPlaylistId, uid) #Adds song to said playlist
+        results = sp.user_playlist_add_tracks(spotifyUser, 
+                                              spotifyPlaylistId, 
+                                              uid
+                                              ) #Adds song to said playlist
         print (results) #logs snapshot to console
         print ("Added to spotify playlist.")
     else:
