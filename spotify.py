@@ -13,6 +13,16 @@ with open("config/SPconfig.json") as f:
     spotifyCtr = spotifyConfig["ctr"]
     spotifyUser = spotifyConfig["spotifyUser"]
 
+def spDupeChecker(tracks, uuid):
+    for trackInfo in tracks["items"]: #Loops through all the tracks to check if the inputted track is already in the playlist
+        id = "spotify:track:"+trackInfo["track"]["id"]
+        if uuid == id:
+            alreadyInPlaylist = True
+        else:
+            alreadyInPlaylist = False
+        
+    return alreadyInPlaylist #Returns True if track is already in playlist, False if not
+
 def addToSpotify(uuid):
     uid = [uuid] #This converts the UID string into a list, because spotipy api only accepts inputs as lists.
     
@@ -35,16 +45,8 @@ def addToSpotify(uuid):
         sp.trace = False #idk what this does but the docs told me to do it
         
         tracks = sp.user_playlist_tracks(spotifyUser, spotifyPlaylistId, limit=100) #Gets all tracks in the playlist
-        """
-        with open("playlists/spPlaylist.json", 'w') as f:
-            json.dump(tracks, f, indent=4)
-        """
-        for trackInfo in tracks["items"]:
-            id = "spotify:track:"+trackInfo["track"]["id"]
-            if uuid == id:
-                alreadyInPlaylist = True
-            else:
-                alreadyInPlaylist = False
+        
+        alreadyInPlaylist = spDupeChecker(tracks, uuid) #Checks for duplicate tracks in the playlist
         if not alreadyInPlaylist:
             results = sp.user_playlist_add_tracks(spotifyUser, 
                                               spotifyPlaylistId, 
@@ -54,7 +56,8 @@ def addToSpotify(uuid):
             print ("Added to spotify playlist.")
         else:
             print("I'm sorry, this song is already in the playlist.")
+            
     else:
         print ("CATCH HERE! Couldn't get token.") 
 
-addToSpotify("spotify:track:2g2a5kDeZexbUTD8abcvm6")
+#addToSpotify("spotify:track:2g2a5kDeZexbUTD8abcvm6")
