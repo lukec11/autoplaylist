@@ -43,7 +43,6 @@ def add_to_youtube(youtube, videoID):
     print("Added to Youtube Playlist.")
 
 def ytAuth():
-    session1 = flask.session
     with open("config/ytAuth.json") as f:
         ytAuthJson = json.load(f)
         credentials_dict = ytAuthJson['credentials']
@@ -68,10 +67,6 @@ def program():
     
     with open("config/ytAuth.json", "w") as f:
         json.dump({"credentials": dict(flask.session['credentials']), "state":flask.session['state']}, f, indent=4)
-
-    #print(flask.session)
-    #youtube = ytAuth()
-    #add_to_youtube(youtube, "Ezf0tKJ6mWg")
     
     return ("Added!") #You are using flask so if you want to show something in the web page here you have to return it, not print it
 
@@ -101,8 +96,8 @@ def authorize():
     #with open("config/ytAuth.json", "w") as f:
         #json.dump(, f, indent=4)
 
+    print(authorization_url)
     return flask.redirect(authorization_url)
-
 
 @app.route('/oauth2callback')
 def oauth2callback():
@@ -131,4 +126,4 @@ def credentials_to_dict(credentials): #courtesy of YouTube / GCP
 if __name__ == '__main__':
     os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' #Disable in prod?
     
-    app.run('localhost', 8080, debug=True)
+    app.run('localhost', 9099, debug=True)
