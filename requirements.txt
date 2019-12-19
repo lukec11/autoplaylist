@@ -1,7 +1,7 @@
 simplejson==3.17.0
 requests==2.22.0
 slack==0.0.2
-slackclient==2.4.0
+slackclient==2.5.0
 jsonify==0.5
 google-auth-oauthlib==0.4.1
 google-api-python-client==1.7.11
