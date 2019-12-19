@@ -131,7 +131,7 @@ def after_request_function():
     interpret_song(searchSpotify(song), username, origin='cmd') 
 
 
-@app.route('/', methods=['POST'])
+@app.route('/songadd', methods=['POST'])
 def songadd():
     if not request_valid(request):
         print ('NOT VALID!')
@@ -155,5 +155,5 @@ def songadd():
 
 #flask stuff that runs web server
 if __name__ == "__main__":
-    app.run(host='127.0.0.1', debug=True, port=8043) #turn off debug before running in prod
+    app.run(host='0.0.0.0', debug=True, port=8043) #turn off debug before running in prod
     
