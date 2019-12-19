@@ -131,7 +131,7 @@ def after_request_function():
     interpret_song(searchSpotify(song), username, origin='cmd') 
 
 
-@app.route('/songadd', methods=['POST'])
+@app.route('/', methods=['POST'])
 def songadd():
     if not request_valid(request):
         print ('NOT VALID!')
