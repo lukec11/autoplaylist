@@ -9,3 +9,4 @@ playlists/
 .webassets-cache
 .cache*
 ytPlaylist.json
+*.deprecated

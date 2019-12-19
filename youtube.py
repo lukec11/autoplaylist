@@ -1,3 +1,4 @@
+#Written by Luke Carapezza (@lukec11) and Harshith Iyer (@harbar20), December 2019
 import os
 import flask
 import requests
@@ -7,10 +8,12 @@ import google_auth_oauthlib.flow
 import googleapiclient.discovery
 import googleapiclient.errors
 
+
 with open("config/YTconfig.json") as f:
     YTconfig = json.load(f)
     secret_key = YTconfig["secret_key"]
 
+#stuff for oauth
 CLIENT_SECRETS_FILE="config/client-secret-new.json"
 
 SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
@@ -18,13 +21,17 @@ SCOPES = ['https://www.googleapis.com/auth/youtube.force-ssl']
 API_SERVICE_NAME = 'youtube'
 API_VERSION = 'v3'
 
+
 app = flask.Flask(__name__)
 
 app.secret_key=(secret_key)
 
+#adds song to the youtube playlist
 def add_to_youtube(youtube, videoID):
     playlist_id = YTconfig["playlist_id"]
-    request = youtube.playlistItems().insert(
+    
+    
+    r2 = youtube.playlistItems().insert(
         part="snippet",
         body={
         "snippet": {
@@ -36,12 +43,13 @@ def add_to_youtube(youtube, videoID):
         }
         }
     )
-    response = request.execute()
-    
+    #runs the request to add
+    response = r2.execute()
     with open("ytPlaylist.json", 'w') as f:
         json.dump(response, f, indent=4)
     print("Added to Youtube Playlist.")
 
+#This is for auth for youtube
 def ytAuth():
     with open("config/ytAuth.json") as f:
         ytAuthJson = json.load(f)
@@ -60,7 +68,7 @@ def ytAuth():
     
     return youtube
 
-@app.route('/app')
+@app.route('/app') #redirects to auth because it doesn't work without this for some reason
 def program():
     if 'credentials' not in flask.session:
         return flask.redirect('authorize')
@@ -68,9 +76,9 @@ def program():
     with open("config/ytAuth.json", "w") as f:
         json.dump({"credentials": dict(flask.session['credentials']), "state":flask.session['state']}, f, indent=4)
     
-    return ("Added!") #You are using flask so if you want to show something in the web page here you have to return it, not print it
+    return ("Added!") #we are using flask so if we want to show something in the web page here return it, don't print it
 
-@app.route('/authorize') #This function was stolen from google. Thanks google.
+@app.route('/authorize') #This function was stolen from google. Thanks google. #This is important - it will allow offline access, so we don't have to re-auth on every addition to the playlist.
 def authorize():
     # Create flow instance to manage the OAuth 2.0 Authorization Grant Flow steps.
     flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
@@ -85,7 +93,7 @@ def authorize():
     authorization_url, state = flow.authorization_url(
     # Enable offline access so that you can refresh an access token without
     # re-prompting the user for permission. Recommended for web server apps.
-    access_type='offline',
+    access_type='offline', 
     # Enable incremental authorization. Recommended as a best practice.
     include_granted_scopes='true')
 
@@ -99,7 +107,7 @@ def authorize():
     print(authorization_url)
     return flask.redirect(authorization_url)
 
-@app.route('/oauth2callback')
+@app.route('/oauth2callback') #calllback for oauth
 def oauth2callback():
     state = flask.session['state']
     
@@ -124,6 +132,6 @@ def credentials_to_dict(credentials): #courtesy of YouTube / GCP
             'scopes': credentials.scopes}
 
 if __name__ == '__main__':
-    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' #Disable in prod?
+    os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = '1' #Ideally disable this in prod
     
-    app.run('localhost', 9099, debug=True)
+    app.run('localhost', 9099, debug=True) #runs flask server

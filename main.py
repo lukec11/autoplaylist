@@ -9,12 +9,15 @@ import googleapiclient.errors
 from urlextract import URLExtract
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+from time import sleep
 #import applemusicpy 
 
 from youtube import add_to_youtube, ytAuth
 from spotify import addToSpotify
 
 extractor = URLExtract()
+
+#global vars
 
 
 
@@ -74,24 +77,35 @@ def add_to_apple(songID):
     
     print("Added to Apple Music playlist.")
 
-def slack_response(song, userID):
+def slack_response(message, userID): #method to post a (parameter) message to slack, visible to channel
     print ("Sending slack response.")
     
-    message = ("{}".format(song))
+    message = ("{}".format(message))
+    slack_client.chat_postMessage(token = slackToken, 
+                                    as_user=False, 
+                                    channel=slackChannel, 
+                                    text=message 
+    )
+                                    #user=userID
+    
+def slack_ephemeral(message, userID): #method to post an ephemeral message to the chat - only the user will see it
+    
+    message = ("{}".format(message))
     slack_client.chat_postEphemeral(token = slackToken,
-                                    as_user=True, 
+                                    as_user=False, 
                                     channel=slackChannel, 
                                     text=message, 
                                     user=userID
-                                )
+    )
+                                
 
-def interpret_song(url, user):
+def interpret_song(url, user, origin): #passes the song info to song.link to get information
     try:
         song = (requests.get('https://api.song.link/v1-alpha.1/links?url={}'.format(url)).content)
         links = json.loads(song)
         
         #Access the non-unique platform portions for each, part II of the API
-        spotify = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('spotify').get('entityUniqueId'))
+        spotify = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('spotify').get('entityUniqueId')) 
         youtube = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('youtube').get('entityUniqueId'))
         applemusic = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('appleMusic').get('entityUniqueId'))
         
@@ -103,12 +117,19 @@ def interpret_song(url, user):
         artist = str(applemusic.get('artistName')) #Pulls artist name
         title = str(applemusic.get('title')) #Pulls song name
         
-        addToSpotify(spotifyID)
-        #add_to_apple(applemusicID) Function deprecated
-        add_to_youtube(ytAuth(), youtubeID)
-
-       # slack_response(("{} by {} was added to the playlist.").format(title, artist), user)
+        isDupe = addToSpotify(spotifyID)
+        #add_to_apple(applemusicID) # Function deprecated due to Apple Music's $99 fee :(
         
+        
+        if not isDupe:
+            add_to_youtube(ytAuth(), youtubeID)
+        elif isDupe:
+            print ("Not added to youtube, because it is a duplicate. [Sign main]") #logs to console when method is a duplicate
+        
+        if not isDupe:
+            slack_response(f" <@{user}> added to the playlist: `{title}` by `{artist}` !", user) #logs publically to slack when message posted
+        elif isDupe:
+            slack_ephemeral(f"`{title}` by `{artist}` is already in the playlist!", user) #logs privately to user if song is a duplicate
         return {
                 "youtubeID": youtubeID, 
                 "spotifyID": spotifyID, 
@@ -116,28 +137,26 @@ def interpret_song(url, user):
                 "artist": artist, 
                 "title": title
             }
-    except:
+    except SyntaxError:
         slack_response("The song that you linked was not recognized.", user)
-        print ("Song wasn't recognized, or something else broke.")
-        return {}
+        print ("Song wasn't recognized, or something else broke.") # ¯\_(ツ)_/¯
+        
+        return {} #returns empty dictionary
  
 
-@slack.RTMClient.run_on(event="message") #Slack listens in pre-defined channel.
+@slack.RTMClient.run_on(event="message") #Slack listens in pre-defined channel for posted links.
 def message_on(**payload):
-    #print ("Message sent in channel.")
+    
     data = payload['data']
     web_client = payload['web_client']
     try: 
         if extractor.has_urls(data['text']):
-            #print ("HAS URLS, CONTINUING.")
             link = list(extractor.find_urls(data['text']))[0]
-            #print ("URLS FOUND, INTERPRETING.")
-            interpret_song(link,data['user'])
-            #print ("URLS INTERPRETED AND SENT TO PLATFORMS.")
+            interpret_song(link,data['user'], 'rtm')
+            
     except KeyError:
         print("Text got deleted, or extractor messed up again.")
     
 slack_token = slackToken #This stuff needs to actually stay here, for slack to listen! Do not delete
 rtm_client = slack.RTMClient(token=slack_token)
 rtm_client.start()
-
