@@ -144,7 +144,7 @@ def interpret_song(url, user, origin): #passes the song info to song.link to get
         return {} #returns empty dictionary
     except AttributeError:
         slack_ephemeral("Autoplaylist has been rate limited, or it didn't recognize your song. Try using `/song title` or `/song artist - title` to add it manually.", user)
-        print ("Rate limited, message posted.")
+        print ("Rate limited or not found, message posted.")
 
         return {} #returns empty dictionary
 
