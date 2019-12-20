@@ -126,7 +126,8 @@ def after_request_function():
     #code doesn't work without this for some reason
     song = str(text)
     
-    
+    print(f"User {username} requested the song \"{song}\".") #prints request to console
+        
     #runs interpretation with info from spotify - will serve final message there
     interpret_song(searchSpotify(song), username, origin='cmd') 
 
