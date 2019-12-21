@@ -103,6 +103,8 @@ def searchSpotify(vquery):
     except (IndexError or AttributeError):
         slack_ephemeral('We couldn\'t find this track! Try searching in a different format, e.g. "artist - title"', username) #returns ephemeral message to user
         print ("Served response: NOT FOUND") #logs output to console for debug
+        return "NotFound"
+
 
 #flask stuff to accept slack slash commands
 app = Flask("after_response")
@@ -129,7 +131,7 @@ def after_request_function():
     print(f"User {username} requested the song \"{song}\".") #prints request to console
         
     #runs interpretation with info from spotify - will serve final message there
-    interpret_song(searchSpotify(song), username, origin='cmd') 
+    interpret_song(searchSpotify(song), username, 'cmd') 
 
 
 @app.route('/songadd', methods=['POST'])
