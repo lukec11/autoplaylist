@@ -47,27 +47,7 @@ with open("config/slack.json") as f:
     slackTeam = slackConfig["team"]
     
     slack_client = slack.WebClient(token = slackToken)
-'''
-def auth_spotify():
-    client_credentials_manager = SpotifyClientCredentials(client_id=spotifyClientId, client_secret=spotifyClientSecret)
-    sp = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-    sp.user_playlist_add_tracks(spotifyUser, spotifyPlaylistId, "spotify:track:1ru5R5iSawvuMELqKXxLjS"); print ("done")
 
-#Function to add song to Spotify playlist
-def add_to_spotify(uri):
-    requests.post('https://api.spotify.com/v1/playlists/{}/tracks?position={}&uris={}'.format(spotifyPlaylistId, spotifyCtr, uri),
-                   headers = 
-                    {'Authorization': spotifyBearer,
-                     'Accept': 'application/json',
-                     'Content-Type':'application/json' })
-    spotifyCtr += 1
-    print(spotifyCtr)
-    
-    with open("config/SPconfig.json") as f:
-        json.dump({"clientID":spotifyClientID, "bearer":spotifyBearer, "playlistID":spotifyPlaylistId, "ctr":spotifyCtr}, f, indent=4)
-    
-    print ("Added to Spotify playlist.")
-'''
 #Function to add song to Apple Music playlist
 def add_to_apple(songID):
     requests.post(
