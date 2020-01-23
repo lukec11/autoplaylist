@@ -60,7 +60,6 @@ with open("config/SPconfig.json") as f: #a metric ton of
     spotifyPlaylistId = spotifyConfig["playlistID"]
     spotifyCtr = spotifyConfig["ctr"]
     spotifyUser = spotifyConfig["spotifyUser"]
-    var2 = 3
 with open ("config/slack.json") as f:
     slackConfig = json.load(f)
     slackTeamId = slackConfig["team"]
