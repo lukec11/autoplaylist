@@ -52,7 +52,7 @@ class AfterResponseMiddleware: # credit Matthew Story @ Stackoverflow
             return iterator
 
 
-with open("config/SPconfig.json") as f:
+with open("config/SPconfig.json") as f: #a metric ton of
     spotifyConfig = json.load(f)
     spotifyClientId = spotifyConfig["clientID"]
     spotifyClientSecret = spotifyConfig["clientSecret"]
@@ -60,36 +60,33 @@ with open("config/SPconfig.json") as f:
     spotifyPlaylistId = spotifyConfig["playlistID"]
     spotifyCtr = spotifyConfig["ctr"]
     spotifyUser = spotifyConfig["spotifyUser"]
-    
+    var2 = 3
 with open ("config/slack.json") as f:
     slackConfig = json.load(f)
     slackTeamId = slackConfig["team"]
     slackToken = slackConfig["verificationToken"]
 
+
 def searchSpotify(vquery):
 
-    #global vars
+    # global vars
     global username
-    
-    query = [vquery] #This converts the UID string into a list, because spotipy api only accepts inputs as lists.
-    
-    scope = 'playlist-modify-public' #Describes the scope necessary, so spotify API can authorize.
+    query = [vquery]  # converts UID string to list; spotipy only accepts lists
+    scope = 'playlist-modify-public'  # spotipy API scpoe
 
-    if (len(sys.argv) > 1): #stuff that spotipy uses - leaving it here so stuff doesn't break
+    if (len(sys.argv) > 1):
         username = sys.argv[1]
     else:
-        ("Usage: {} username".format(sys.argv[0])) #This is entirely irrelevant, but the code doesn't run without it.
+        ("Usage: {} username".format(sys.argv[0]))  # This is entirely irrelevant, but the code doesn't run without it.
 
-    token = spotipy.util.prompt_for_user_token(spotifyUser, #prompts for spotify user token, so it can access the api
+    token = spotipy.util.prompt_for_user_token(spotifyUser,  # prompts for spotify user token, so it can access the api
                                                scope,
                                                client_id=spotifyClientId,
                                                client_secret=spotifyClientSecret,
                                                redirect_uri='http://localhost:9898/spotifyCallback'
-                                               ) #Authorizes with Spotify using OAuth
-    
+                                               )  # Authorizes with Spotify using OAuth
     sp = spotipy.Spotify(auth=token)
-    sp.trace = False #idk what this does but the docs told me to do it
-    
+    sp.trace = False  # idk what this does but the docs told me to do it
     try:
         tracks = sp.search(query, limit=1, offset=0, type="track", market=None)
         tracks2 = tracks.get('tracks').get('items')[0].get('uri')
@@ -100,32 +97,30 @@ def searchSpotify(vquery):
         return "NotFound"
 
 
-#flask stuff to accept slack slash commands
+# flask stuff to accept slack slash commands
 app = Flask("after_response")
-AfterResponse(app) #calls AfterResponse after flask app
+AfterResponse(app)  # calls AfterResponse after flask app
 
-username = "" #initializes to blank by default
+# initializes strings to blank by default
+username = ""
 text = ""
+
 
 def request_valid(request):
     slackToken = request.form['token']
-    #slackTeamId = request.form['team-id']
+    # slackTeamId = request.form['team-id']
     return slackToken
+
 
 @app.after_response
 def after_request_function():
-    
-    #global vars
+    # global vars
     global username
     global text
-    
-    #code doesn't work without this for some reason
     song = str(text)
-    
-    print(f"User {username} requested the song \"{song}\".") #prints request to console
-        
-    #runs interpretation with info from spotify - will serve final message there
-    interpret_song(searchSpotify(song), username, 'cmd') 
+    print(f"User {username} requested the song \"{song}\".")  
+    # runs interpretation with info from spotify - slack serve call there
+    interpret_song(searchSpotify(song), username, 'cmd')
 
 
 @app.route('/songadd', methods=['POST'])
@@ -133,19 +128,16 @@ def songadd():
     if not request_valid(request):
         print ('NOT VALID!')
         abort(400)
-    
-    #global vars
+    # global vars
     global username
     global text
-    
-    #gets vars based on slack's post
+    # gets vars based on slack's post
     username = request.form.get('user_id')
     text = request.form.get('text')
-    
-    return Response("Your songs are on their way! Please give us a moment.") #returns early response, because slack needs a response within a few minutes to work properly
+    # returns early response, to avoid slack timeout reply
+    return Response("Your songs are on their way! Please give us a moment.")
 
 
-#flask stuff that runs web server
+# flask stuff that runs web server
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', debug=True, port=8043) #turn off debug before running in prod
-    
+    app.run(host='0.0.0.0', debug=True, port=8043)
