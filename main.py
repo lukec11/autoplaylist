@@ -10,18 +10,15 @@ from urlextract import URLExtract
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from time import sleep
-#import applemusicpy 
 
 from youtube import add_to_youtube, ytAuth
 from spotify import addToSpotify
 
-extractor = URLExtract()
-
-#global vars
+extractor = URLExtract()  # declare extractor for later
 
 
 
-#Spotify config stuff
+# Spotify config stuff
 with open("config/SPconfig.json") as f:
     spotifyConfig = json.load(f)
     
@@ -32,58 +29,49 @@ with open("config/SPconfig.json") as f:
     spotifyCtr = spotifyConfig["ctr"]
     spotifyUser = spotifyConfig["spotifyUser"]
 
-#Youtube config stuff
+# Youtube config stuff
 with open("config/YTconfig.json") as f:
     youtubeConfig = json.load(f)
 
-#Apple Music config stuff
-with open("config/AMconfig.json") as f:
-    appleConfig = json.load(f)
-    
 with open("config/slack.json") as f:
     slackConfig = json.load(f)
     slackToken = slackConfig["token"]
     slackChannel = slackConfig["channel"]
     slackTeam = slackConfig["team"]
-    
+
     slack_client = slack.WebClient(token = slackToken)
 
-#Function to add song to Apple Music playlist
-def add_to_apple(songID):
-    requests.post(
-                    "https://api.music.apple.com/v1/me/library/playlists/{}/tracks".format(appleConfig["playlistID"]),
-                    {"data": [{"id": songID, "type": "songs"}]}
-                )
-    
-    print("Added to Apple Music playlist.")
 
-def slack_response(message, userID): #method to post a (parameter) message to slack, visible to channel
+# method to post a (parameter) message to slack, visible to channel
+def slack_response(message, userID):
     print ("Sending slack response.")
     
     message = ("{}".format(message))
     slack_client.chat_postMessage(token = slackToken, 
-                                    as_user=False, 
-                                    channel=slackChannel, 
-                                    text=message 
-    )
-                                    #user=userID
-    
-def slack_ephemeral(message, userID): #method to post an ephemeral message to the chat - only the user will see it
-    
+                                  as_user=False,
+                                  channel=slackChannel, 
+                                  text=message 
+                                 )
+                                # user=userID
+
+
+def slack_ephemeral(message, userID): # method to post an ephemeral message to the chat - only the user will see it
+
     message = ("{}".format(message))
     slack_client.chat_postEphemeral(token = slackToken,
-                                    as_user=False, 
-                                    channel=slackChannel, 
-                                    text=message, 
+                                    as_user=False,
+                                    channel=slackChannel,
+                                    text=message,
                                     user=userID
-    )
-                                
+                                    )
 
-def interpret_song(url, user, origin): #passes the song info to song.link to get information
+
+# passes the song info to song.link to get information
+def interpret_song(url, user, origin):
     try:
-        song = (requests.get('https://api.song.link/v1-alpha.1/links?url={}'.format(url)).content)
+        song = (requests.get(f'https://api.song.link/v1-alpha.1/links?url={url}'.content)
         links = json.loads(song)
-        
+
         #Access the non-unique platform portions for each, part II of the API
         spotify = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('spotify').get('entityUniqueId')) 
         youtube = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('youtube').get('entityUniqueId'))
@@ -121,27 +109,28 @@ def interpret_song(url, user, origin): #passes the song info to song.link to get
         slack_ephemeral("The song that you linked was not recognized.", user)
         print ("Song wasn't recognized, or something else broke.") # ¯\_(ツ)_/¯
         
-        return {} #returns empty dictionary
+        return {}  # returns empty dictionary
     except AttributeError:
         if origin != "cmd":
             slack_ephemeral("Autoplaylist has been rate limited, or it didn't recognize your song. Try using `/song title` or `/song artist - title` to add it manually.", user)
             print ("Rate limited or not found, message posted.")
 
-        return {} #returns empty dictionary
+        return {}  # returns empty dictionary
 
-@slack.RTMClient.run_on(event="message") #Slack listens in pre-defined channel for posted links.
+# Slack listens in pre-defined channel for posted links.
+@slack.RTMClient.run_on(event="message")
 def message_on(**payload):
-    
+
     data = payload['data']
     web_client = payload['web_client']
-    try: 
+    try:
         if extractor.has_urls(data['text']):
             link = list(extractor.find_urls(data['text']))[0]
-            interpret_song(link,data['user'], 'rtm')
-            
+            interpret_song(link, data['user'], 'rtm')
+   
     except KeyError:
         print("Text got deleted, or extractor messed up again.")
-    
+
 slack_token = slackToken #This stuff needs to actually stay here, for slack to listen! Do not delete
 rtm_client = slack.RTMClient(token=slack_token)
 rtm_client.start()
