@@ -7,11 +7,10 @@ import json
 from flask import Flask, request, abort, Response
 import jsonify
 
-
 #imports methods from main
 from main import interpret_song, slack_ephemeral
 
-
+#import for flask
 import traceback
 from werkzeug.wsgi import ClosingIterator
 
@@ -53,10 +52,8 @@ class AfterResponseMiddleware: # credit Matthew Story @ Stackoverflow
             return iterator
 
 
-
 with open("config/SPconfig.json") as f:
     spotifyConfig = json.load(f)
-    
     spotifyClientId = spotifyConfig["clientID"]
     spotifyClientSecret = spotifyConfig["clientSecret"]
     spotifyBearer = spotifyConfig["bearer"]
@@ -66,15 +63,13 @@ with open("config/SPconfig.json") as f:
     
 with open ("config/slack.json") as f:
     slackConfig = json.load(f)
-    
     slackTeamId = slackConfig["team"]
     slackToken = slackConfig["verificationToken"]
 
 def searchSpotify(vquery):
-    
+
     #global vars
     global username
-    
     
     query = [vquery] #This converts the UID string into a list, because spotipy api only accepts inputs as lists.
     
@@ -91,7 +86,6 @@ def searchSpotify(vquery):
                                                client_secret=spotifyClientSecret,
                                                redirect_uri='http://localhost:9898/spotifyCallback'
                                                ) #Authorizes with Spotify using OAuth
-
     
     sp = spotipy.Spotify(auth=token)
     sp.trace = False #idk what this does but the docs told me to do it
@@ -140,7 +134,6 @@ def songadd():
         print ('NOT VALID!')
         abort(400)
     
-    
     #global vars
     global username
     global text
@@ -149,11 +142,7 @@ def songadd():
     username = request.form.get('user_id')
     text = request.form.get('text')
     
-  
-    
     return Response("Your songs are on their way! Please give us a moment.") #returns early response, because slack needs a response within a few minutes to work properly
-  
-
 
 
 #flask stuff that runs web server
