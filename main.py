@@ -21,7 +21,7 @@ extractor = URLExtract()  # declare extractor for later
 # Spotify config stuff
 with open("config/SPconfig.json") as f:
     spotifyConfig = json.load(f)
-    
+
     spotifyClientId = spotifyConfig["clientID"]
     spotifyClientSecret = spotifyConfig["clientSecret"]
     spotifyBearer = spotifyConfig["bearer"]
@@ -45,12 +45,12 @@ with open("config/slack.json") as f:
 # method to post a (parameter) message to slack, visible to channel
 def slack_response(message, userID):
     print ("Sending slack response.")
-    
+
     message = ("{}".format(message))
     slack_client.chat_postMessage(token = slackToken, 
                                   as_user=False,
-                                  channel=slackChannel, 
-                                  text=message 
+                                  channel=slackChannel,
+                                  text=message
                                  )
                                 # user=userID
 
@@ -76,19 +76,19 @@ def interpret_song(url, user, origin):
         spotify = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('spotify').get('entityUniqueId')) 
         youtube = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('youtube').get('entityUniqueId'))
         applemusic = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('appleMusic').get('entityUniqueId'))
-        
+
         #Accesses sections fully unique to each part of the ID - Part I
         youtubeID = str(youtube.get('id'))
         spotifyID = ("spotify:track:" + str(spotify.get('id'))) 
         applemusicID = str(applemusic.get('id'))
-        
+
         artist = str(applemusic.get('artistName')) #Pulls artist name
         title = str(applemusic.get('title')) #Pulls song name
-        
+
         isDupe = addToSpotify(spotifyID)
         #add_to_apple(applemusicID) # Function deprecated due to Apple Music's $99 fee :(
-        
-        
+
+
         if not isDupe:
             add_to_youtube(ytAuth(), youtubeID)
         elif isDupe:
