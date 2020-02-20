@@ -1,5 +1,5 @@
 simplejson==3.17.0
-requests==2.22.0
+requests==2.23.0
 slack==0.0.2
 slackclient==2.5.0
 jsonify==0.5
