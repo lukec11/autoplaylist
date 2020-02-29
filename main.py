@@ -126,7 +126,9 @@ def message_on(**payload):
     data = payload['data']
     web_client = payload['web_client']
     try:
+        print("trying url!")
         if extractor.has_urls(data['text']):
+            print("extractor has URLs.")
             link = list(extractor.find_urls(data['text']))[0]
             interpret_song(link, data['user'], 'rtm')
    
