@@ -70,7 +70,7 @@ def slack_ephemeral(message, userID): # method to post an ephemeral message to t
 def interpret_song(url, user, origin):
     try:
         print("trying song.")
-        song = (requests.get(f'https://api.song.link/v1-alpha.1/links?url={url}'.content))
+        song = requests.get(f'https://api.song.link/v1-alpha.1/links?url={url}').content
         links = json.loads(song)
 
         #Access the non-unique platform portions for each, part II of the API
@@ -111,11 +111,10 @@ def interpret_song(url, user, origin):
         print ("Song wasn't recognized, or something else broke.") # ¯\_(ツ)_/¯
         
         return {}  # returns empty dictionary
-    except AttributeError:
-        print ("Attribute error.")
-        if origin != "cmd":
-            slack_ephemeral("Autoplaylist has been rate limited, or it didn't recognize your song. Try using `/song title` or `/song artist - title` to add it manually. (If you didn't link a song, please ignore this message and it will disappear automatically)", user)
-            print ("Rate limited or not found, message posted.")
+    except AttributeError as a:
+        print (f"Attribute error: {a}")
+        slack_ephemeral("Autoplaylist has been rate limited, or it didn't recognize your song. Try using `/song title` or `/song artist - title` to add it manually. If you didn't link a song, please ignore this message and it will disappear automatically.", user)
+        print ("Rate limited or not found, message posted.")
 
         return {}  # returns empty dictionary
 
@@ -126,8 +125,11 @@ def message_on(**payload):
     data = payload['data']
     web_client = payload['web_client']
     try:
+        print("trying url!")
         if extractor.has_urls(data['text']):
+            print("extractor has URLs.")
             link = list(extractor.find_urls(data['text']))[0]
+            print ("User printed the text" + data['text'])
             interpret_song(link, data['user'], 'rtm')
    
     except KeyError:
