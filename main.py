@@ -68,44 +68,46 @@ def slack_ephemeral(message, userID): # method to post an ephemeral message to t
 
 # passes the song info to song.link to get information
 def interpret_song(url, user, origin):
+
+    print("trying song.")
+    song = requests.get(f'https://api.song.link/v1-alpha.1/links?url={url}').content
+    links = json.loads(song)
+
+    #Access the non-unique platform portions for each, part II of the API
+    spotify = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('spotify').get('entityUniqueId')) 
+    youtube = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('youtube').get('entityUniqueId'))
+    applemusic = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('appleMusic').get('entityUniqueId'))
+
+    #Accesses sections fully unique to each part of the ID - Part I
+    youtubeID = str(youtube.get('id'))
+    spotifyID = ("spotify:track:" + str(spotify.get('id'))) 
+    applemusicID = str(applemusic.get('id'))
+
+    artist = str(applemusic.get('artistName')) #Pulls artist name
+    title = str(applemusic.get('title')) #Pulls song name
+
+    isDupe = addToSpotify(spotifyID)
+    #add_to_apple(applemusicID) # Function deprecated due to Apple Music's $99 fee :(
+
+
+    if not isDupe:
+        add_to_youtube(ytAuth(), youtubeID)
+    elif isDupe:
+        print ("Not added to youtube, because it is a duplicate. [Sign main]") #logs to console when method is a duplicate
+    
+    if not isDupe:
+        slack_response(f" <@{user}> added to the playlist: `{title}` by `{artist}` !", user) #logs publically to slack when message posted
+    elif isDupe:
+        slack_ephemeral(f"`{title}` by `{artist}` is already in the playlist!", user) #logs privately to user if song is a duplicate
+    return {
+            "youtubeID": youtubeID, 
+            "spotifyID": spotifyID, 
+            "applemusicID": applemusicID, 
+            "artist": artist, 
+            "title": title
+        }
     try:
-        print("trying song.")
-        song = requests.get(f'https://api.song.link/v1-alpha.1/links?url={url}').content
-        links = json.loads(song)
-
-        #Access the non-unique platform portions for each, part II of the API
-        spotify = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('spotify').get('entityUniqueId')) 
-        youtube = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('youtube').get('entityUniqueId'))
-        applemusic = links.get('entitiesByUniqueId').get(links.get('linksByPlatform').get('appleMusic').get('entityUniqueId'))
-
-        #Accesses sections fully unique to each part of the ID - Part I
-        youtubeID = str(youtube.get('id'))
-        spotifyID = ("spotify:track:" + str(spotify.get('id'))) 
-        applemusicID = str(applemusic.get('id'))
-
-        artist = str(applemusic.get('artistName')) #Pulls artist name
-        title = str(applemusic.get('title')) #Pulls song name
-
-        isDupe = addToSpotify(spotifyID)
-        #add_to_apple(applemusicID) # Function deprecated due to Apple Music's $99 fee :(
-
-
-        if not isDupe:
-            add_to_youtube(ytAuth(), youtubeID)
-        elif isDupe:
-            print ("Not added to youtube, because it is a duplicate. [Sign main]") #logs to console when method is a duplicate
-        
-        if not isDupe:
-            slack_response(f" <@{user}> added to the playlist: `{title}` by `{artist}` !", user) #logs publically to slack when message posted
-        elif isDupe:
-            slack_ephemeral(f"`{title}` by `{artist}` is already in the playlist!", user) #logs privately to user if song is a duplicate
-        return {
-                "youtubeID": youtubeID, 
-                "spotifyID": spotifyID, 
-                "applemusicID": applemusicID, 
-                "artist": artist, 
-                "title": title
-            }
+        pass
     except SyntaxError:
         slack_ephemeral("The song that you linked was not recognized.", user)
         print ("Song wasn't recognized, or something else broke.") # ¯\_(ツ)_/¯
