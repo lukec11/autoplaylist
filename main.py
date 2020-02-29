@@ -111,8 +111,8 @@ def interpret_song(url, user, origin):
         print ("Song wasn't recognized, or something else broke.") # ¯\_(ツ)_/¯
         
         return {}  # returns empty dictionary
-    except AttributeError:
-        print ("Attribute error.")
+    except AttributeError as a:
+        print (f"Attribute error: {a}")
         if origin != "cmd":
             slack_ephemeral("Autoplaylist has been rate limited, or it didn't recognize your song. Try using `/song title` or `/song artist - title` to add it manually. (If you didn't link a song, please ignore this message and it will disappear automatically)", user)
             print ("Rate limited or not found, message posted.")
