@@ -70,7 +70,7 @@ def slack_ephemeral(message, userID): # method to post an ephemeral message to t
 def interpret_song(url, user, origin):
     try:
         print("trying song.")
-        song = (requests.get(f'https://api.song.link/v1-alpha.1/links?url={url}'.content))
+        song = requests.get(f'https://api.song.link/v1-alpha.1/links?url={url}').content
         links = json.loads(song)
 
         #Access the non-unique platform portions for each, part II of the API
