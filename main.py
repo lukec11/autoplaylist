@@ -130,6 +130,7 @@ def message_on(**payload):
         if extractor.has_urls(data['text']):
             print("extractor has URLs.")
             link = list(extractor.find_urls(data['text']))[0]
+            print ("User printed the text" + data['text'])
             interpret_song(link, data['user'], 'rtm')
    
     except KeyError:
