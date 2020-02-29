@@ -69,6 +69,7 @@ def slack_ephemeral(message, userID): # method to post an ephemeral message to t
 # passes the song info to song.link to get information
 def interpret_song(url, user, origin):
     try:
+        print("trying song.")
         song = (requests.get(f'https://api.song.link/v1-alpha.1/links?url={url}'.content))
         links = json.loads(song)
 
@@ -111,6 +112,7 @@ def interpret_song(url, user, origin):
         
         return {}  # returns empty dictionary
     except AttributeError:
+        print ("Attribute error.")
         if origin != "cmd":
             slack_ephemeral("Autoplaylist has been rate limited, or it didn't recognize your song. Try using `/song title` or `/song artist - title` to add it manually. (If you didn't link a song, please ignore this message and it will disappear automatically)", user)
             print ("Rate limited or not found, message posted.")
