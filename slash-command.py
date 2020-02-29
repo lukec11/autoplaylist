@@ -120,7 +120,7 @@ def after_request_function():
     print(f"User {username} requested the song \"{song}\".")  
     # runs interpretation with info from spotify - slack serve call there
     searchSong = searchSpotify(song)
-    print(f"User requested the song {searchSong}")
+    print(f"User command-requested the song {searchSong}")
     interpret_song(searchSpotify(song), username, 'cmd')
 
 
