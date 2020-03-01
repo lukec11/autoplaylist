@@ -83,7 +83,7 @@ def interpret_song(url, user, origin):
         spotifyID = ("spotify:track:" + str(spotify.get('id'))) 
         applemusicID = str(applemusic.get('id'))
 
-        artist = str(applemusic.get('artistName')) #Pulls artist name
+        artist = str(spotify.get('artistName')) #Pulls artist name
         title = str(applemusic.get('title')) #Pulls song name
 
         isDupe = addToSpotify(spotifyID)
@@ -125,11 +125,9 @@ def message_on(**payload):
     data = payload['data']
     web_client = payload['web_client']
     try:
-        print("trying url!")
         if extractor.has_urls(data['text']):
-            print("extractor has URLs.")
             link = list(extractor.find_urls(data['text']))[0]
-            print ("User printed the text" + data['text'])
+            print (f"Interpreting text: {data['text']}")
             interpret_song(link, data['user'], 'rtm')
    
     except KeyError:
