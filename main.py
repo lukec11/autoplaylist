@@ -14,8 +14,6 @@ from time import sleep
 from youtube import add_to_youtube, ytAuth
 from spotify import addToSpotify
 
-extractor = URLExtract()  # declare extractor for later
-
 
 
 # Spotify config stuff
@@ -39,8 +37,8 @@ with open("config/slack.json") as f:
     slackChannel = slackConfig["channel"]
     slackTeam = slackConfig["team"]
 
-    slack_client = slack.WebClient(token = slackToken)
-
+slack_client = slack.WebClient(token = slackToken)
+extractor = URLExtract()  # declare extractor for later
 
 # method to post a (parameter) message to slack, visible to channel
 def slack_response(message, userID):
@@ -52,7 +50,6 @@ def slack_response(message, userID):
                                   channel=slackChannel,
                                   text=message
                                  )
-                                # user=userID
 
 
 def slack_ephemeral(message, userID): # method to post an ephemeral message to the chat - only the user will see it
@@ -69,7 +66,6 @@ def slack_ephemeral(message, userID): # method to post an ephemeral message to t
 # passes the song info to song.link to get information
 def interpret_song(url, user, origin):
     try:
-        print("trying song.")
         song = requests.get(f'https://api.song.link/v1-alpha.1/links?url={url}').content
         links = json.loads(song)
 
@@ -87,13 +83,12 @@ def interpret_song(url, user, origin):
         title = str(applemusic.get('title')) #Pulls song name
 
         isDupe = addToSpotify(spotifyID)
-        #add_to_apple(applemusicID) # Function deprecated due to Apple Music's $99 fee :(
 
 
         if not isDupe:
             add_to_youtube(ytAuth(), youtubeID)
         elif isDupe:
-            print ("Not added to youtube, because it is a duplicate. [Sign main]") #logs to console when method is a duplicate
+            print (f"INFO: Song {title} is duplicate, not added. [Main]") #logs to console when method is a duplicate
         
         if not isDupe:
             slack_response(f" <@{user}> added to the playlist: `{title}` by `{artist}` !", user) #logs publically to slack when message posted
@@ -106,13 +101,13 @@ def interpret_song(url, user, origin):
                 "artist": artist, 
                 "title": title
             }
-    except SyntaxError:
+    except SyntaxError as s:
         slack_ephemeral("The song that you linked was not recognized.", user)
-        print ("Song wasn't recognized, or something else broke.") # ¯\_(ツ)_/¯
+        print (f"WARNING: SyntaxError - {s}")
         
         return {}  # returns empty dictionary
     except AttributeError as a:
-        print (f"Attribute error: {a}")
+        print (f"WARNING: AttributeError: {a}")
         slack_ephemeral("Autoplaylist has been rate limited, or it didn't recognize your song. Try using `/song title` or `/song artist - title` to add it manually. If you didn't link a song, please ignore this message and it will disappear automatically.", user)
         print ("Rate limited or not found, message posted.")
 
@@ -127,11 +122,11 @@ def message_on(**payload):
     try:
         if extractor.has_urls(data['text']):
             link = list(extractor.find_urls(data['text']))[0]
-            print (f"Interpreting text: {data['text']}")
+            print (f"User printed text: {data['text']}")
             interpret_song(link, data['user'], 'rtm')
    
-    except KeyError:
-        print("Text got deleted, or extractor messed up again.")
+    except KeyError as k:
+        print(f"WARNING: KeyError from RTM! {k}")
 
 slack_token = slackToken #This stuff needs to actually stay here, for slack to listen! Do not delete
 rtm_client = slack.RTMClient(token=slack_token)
