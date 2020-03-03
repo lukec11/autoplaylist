@@ -90,9 +90,10 @@ def searchSpotify(vquery):
         tracks = sp.search(query, limit=1, offset=0, type="track", market=None)
         tracks2 = tracks.get('tracks').get('items')[0].get('uri')
         return tracks2
-    except (IndexError or AttributeError):
+    except (IndexError or AttributeError) as e:
         slack_ephemeral('We couldn\'t find this track! Try searching in a different format, e.g. "artist - title"', username) #returns ephemeral message to user
-        print ("Served response: NOT FOUND") #logs output to console for debug
+        print (f"DEBUG: Served response: NOT FOUND - {e}") #logs output to console for debug
+
         return "NotFound"
 
 
@@ -117,10 +118,9 @@ def after_request_function():
     global username
     global text
     song = str(text)
-    print(f"User {username} requested the song \"{song}\".")  
+    print(f"INFO: User {username} requested the song \"{song}\".")  
     # runs interpretation with info from spotify - slack serve call there
     searchSong = searchSpotify(song)
-    print(f"User command-requested the song {searchSong}")
     interpret_song(searchSpotify(song), username, 'cmd')
 
 
