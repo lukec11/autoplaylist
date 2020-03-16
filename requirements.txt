@@ -4,7 +4,7 @@ slack==0.0.2
 slackclient==2.5.0
 jsonify==0.5
 google-auth-oauthlib==0.4.1
-google-api-python-client==1.7.12
+google-api-python-client==1.8.0
 urlextract==0.14.0
 spotipy==2.9.0
 Flask==1.1.1
