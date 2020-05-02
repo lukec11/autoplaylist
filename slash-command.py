@@ -135,8 +135,8 @@ def songadd():
     # gets vars based on slack's post
     username = request.form.get('user_id')
     text = request.form.get('text')
-    # returns early response, to avoid slack timeout reply
-    return Response("Your songs are on their way! Please give us a moment.")
+    # returns early response, to avoid slack timeout reply - empty 200
+    return ('', 200)
 
 
 # flask stuff that runs web server
