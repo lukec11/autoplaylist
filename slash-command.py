@@ -118,16 +118,19 @@ def after_request_function():
     global username
     global text
     song = str(text)
-    print(f"INFO: User {username} requested the song \"{song}\".")  
+    print(f"INFO: User {username} requested the song \"{song}\".")
     # runs interpretation with info from spotify - slack serve call there
     searchSong = searchSpotify(song)
-    interpret_song(searchSpotify(song), username, 'cmd')
+    try:
+        interpret_song(searchSpotify(song), username, 'cmd')
+    except:
+        slack_ephemeral('Sorry, we weren\'t able to get matadata for that song :(', username)
 
 
 @app.route('/songadd', methods=['POST'])
 def songadd():
     if not request_valid(request):
-        print ('NOT VALID!')
+        print('NOT VALID!')
         abort(400)
     # global vars
     global username
