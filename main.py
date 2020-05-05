@@ -15,7 +15,6 @@ from youtube import add_to_youtube, ytAuth
 from spotify import addToSpotify
 
 
-
 # Spotify config stuff
 with open("config/SPconfig.json") as f:
     spotifyConfig = json.load(f)
@@ -45,7 +44,7 @@ def slack_response(message, userID):
     print ("Sending slack response.")
 
     message = ("{}".format(message))
-    slack_client.chat_postMessage(token = slackToken, 
+    slack_client.chat_postMessage(token = slackToken,
                                   as_user=False,
                                   channel=slackChannel,
                                   text=message
