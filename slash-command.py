@@ -1,4 +1,4 @@
-#Written by Luke Carapezza (@lukec11), December 2019
+# Written by Luke Carapezza (@lukec11), December 2019
 
 import sys
 import spotipy
@@ -7,14 +7,15 @@ import json
 from flask import Flask, request, abort, Response
 import jsonify
 
-#imports methods from main
+# imports methods from main
 from main import interpret_song, slack_ephemeral
 
-#import for flask
+# import for flask
 import traceback
 from werkzeug.wsgi import ClosingIterator
 
-class AfterResponse: 
+
+class AfterResponse:
     def __init__(self, app=None):
         self.callbacks = []
         if app:
@@ -38,7 +39,8 @@ class AfterResponse:
             except Exception:
                 traceback.print_exc()
 
-class AfterResponseMiddleware: # credit Matthew Story @ Stackoverflow
+
+class AfterResponseMiddleware:  # credit Matthew Story @ Stackoverflow
     def __init__(self, application, after_response_ext):
         self.application = application
         self.after_response_ext = after_response_ext
@@ -51,19 +53,15 @@ class AfterResponseMiddleware: # credit Matthew Story @ Stackoverflow
             traceback.print_exc()
             return iterator
 
-
-with open("config/SPconfig.json") as f: #a metric ton of
-    spotifyConfig = json.load(f)
-    spotifyClientId = spotifyConfig["clientID"]
-    spotifyClientSecret = spotifyConfig["clientSecret"]
-    spotifyBearer = spotifyConfig["bearer"]
-    spotifyPlaylistId = spotifyConfig["playlistID"]
-    spotifyCtr = spotifyConfig["ctr"]
-    spotifyUser = spotifyConfig["spotifyUser"]
-with open ("config/slack.json") as f:
-    slackConfig = json.load(f)
-    slackTeamId = slackConfig["team"]
-    slackToken = slackConfig["verificationToken"]
+    spotifyConfig = os.environ
+    spotifyClientId = spotifyConfig["spotify_clientID"]
+    spotifyClientSecret = spotifyConfig["spotify_clientSecret"]
+    spotifyBearer = spotifyConfig["spotify_bearer"]
+    spotifyPlaylistId = spotifyConfig["spotify_playlistID"]
+    spotifyCtr = spotifyConfig["spotify_ctr"]
+    spotifyUser = spotifyConfig["spotify_spotifyUser"]
+    slackTeamId = spotifyConfig["slack_team"]
+    slackToken = spotifyConfig["slack_verificationToken"]
 
 
 def searchSpotify(vquery):
@@ -76,7 +74,8 @@ def searchSpotify(vquery):
     if (len(sys.argv) > 1):
         username = sys.argv[1]
     else:
-        ("Usage: {} username".format(sys.argv[0]))  # This is entirely irrelevant, but the code doesn't run without it.
+        # This is entirely irrelevant, but the code doesn't run without it.
+        ("Usage: {} username".format(sys.argv[0]))
 
     token = spotipy.util.prompt_for_user_token(spotifyUser,  # prompts for spotify user token, so it can access the api
                                                scope,
@@ -91,8 +90,11 @@ def searchSpotify(vquery):
         tracks2 = tracks.get('tracks').get('items')[0].get('uri')
         return tracks2
     except (IndexError or AttributeError) as e:
-        slack_ephemeral('We couldn\'t find this track! Try searching in a different format, e.g. "artist - title"', username) #returns ephemeral message to user
-        print (f"DEBUG: Served response: NOT FOUND - {e}") #logs output to console for debug
+        # returns ephemeral message to user
+        slack_ephemeral(
+            'We couldn\'t find this track! Try searching in a different format, e.g. "artist - title"', username)
+        # logs output to console for debug
+        print(f"DEBUG: Served response: NOT FOUND - {e}")
 
         return "NotFound"
 
@@ -124,7 +126,8 @@ def after_request_function():
     try:
         interpret_song(searchSpotify(song), username, 'cmd')
     except:
-        slack_ephemeral('Sorry, we weren\'t able to get matadata for that song :(', username)
+        slack_ephemeral(
+            'Sorry, we weren\'t able to get matadata for that song :(', username)
 
 
 @app.route('/songadd', methods=['POST'])

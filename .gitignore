@@ -10,3 +10,4 @@ playlists/
 .cache*
 ytPlaylist.json
 *.deprecated
+.env/

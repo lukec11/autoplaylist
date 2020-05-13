@@ -1,4 +1,4 @@
-#Written by Luke Carapezza (@lukec11) and Harshith Iyer (@harbar20), December 2019
+# Written by Luke Carapezza (@lukec11) and Harshith Iyer (@harbar20), December 2019
 import os
 import flask
 import requests
@@ -30,7 +30,7 @@ app.secret_key = (secret_key)
 # adds song to the youtube playlist
 def add_to_youtube(youtube, videoID):
     playlist_id = YTconfig["playlist_id"]
-   
+
     r2 = youtube.playlistItems().insert(
         part="snippet",
         body={
@@ -39,9 +39,9 @@ def add_to_youtube(youtube, videoID):
                 "resourceId": {
                     "kind": "youtube#video",
                     "videoId": videoID
-                    }
+                }
             }
-            }
+        }
     )
     # runs the request to add
     response = r2.execute()
@@ -58,23 +58,27 @@ def ytAuth():
 
     credentials = google.oauth2.credentials.Credentials(
         credentials_dict["token"],
-        refresh_token = credentials_dict["refresh_token"],
-        token_uri = credentials_dict["token_uri"],
-        client_id = credentials_dict["client_id"],
-        client_secret = credentials_dict["client_secret"],
-        scopes = credentials_dict["scopes"]
+        refresh_token=credentials_dict["refresh_token"],
+        token_uri=credentials_dict["token_uri"],
+        client_id=credentials_dict["client_id"],
+        client_secret=credentials_dict["client_secret"],
+        scopes=credentials_dict["scopes"]
     )
 
-    youtube = googleapiclient.discovery.build(API_SERVICE_NAME, API_VERSION, credentials=credentials)
+    youtube = googleapiclient.discovery.build(
+        API_SERVICE_NAME, API_VERSION, credentials=credentials)
     return youtube
 
-@app.route('/app') #redirects to auth because it doesn't work without this for some reason
+
+# redirects to auth because it doesn't work without this for some reason
+@app.route('/app')
 def program():
     if 'credentials' not in flask.session:
         return flask.redirect('authorize')
 
     with open("config/ytAuth.json", "w") as f:
-        json.dump({"credentials": dict(flask.session['credentials']), "state":flask.session['state']}, f, indent=4)
+        json.dump({"credentials": dict(
+            flask.session['credentials']), "state": flask.session['state']}, f, indent=4)
 
     # return this - will show on web page
     return ("Added!")
@@ -84,7 +88,8 @@ def program():
 @app.route('/authorize')
 def authorize():
     # Create flow instance to manage the OAuth 2.0 Authorization Grant Flow.
-    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES)
+    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
+        CLIENT_SECRETS_FILE, scopes=SCOPES)
 
     # The URI here must exactly match one of the authorized redirect URIs
     # for the OAuth 2.0 client, which you configured in the API Console. If
@@ -93,11 +98,11 @@ def authorize():
     flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
 
     authorization_url, state = flow.authorization_url(
-    # Enable offline access so that you can refresh an access token without
-    # re-prompting the user for permission. Recommended for web server apps.
-    access_type='offline', 
-    # Enable incremental authorization. Recommended as a best practice.
-    include_granted_scopes='true')
+        # Enable offline access so that you can refresh an access token without
+        # re-prompting the user for permission. Recommended for web server apps.
+        access_type='offline',
+        # Enable incremental authorization. Recommended as a best practice.
+        include_granted_scopes='true')
 
     # Store the state so the callback can verify the auth server response.
     flask.session['state'] = state
@@ -106,11 +111,13 @@ def authorize():
     print(authorization_url)
     return flask.redirect(authorization_url)
 
-@app.route('/oauth2callback') # calllback for oauth
+
+@app.route('/oauth2callback')  # calllback for oauth
 def oauth2callback():
     state = flask.session['state']
 
-    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(CLIENT_SECRETS_FILE, scopes=SCOPES, state=state)
+    flow = google_auth_oauthlib.flow.Flow.from_client_secrets_file(
+        CLIENT_SECRETS_FILE, scopes=SCOPES, state=state)
     flow.redirect_uri = flask.url_for('oauth2callback', _external=True)
 
     authorization_response = flask.request.url
