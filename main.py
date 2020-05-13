@@ -15,16 +15,13 @@ from youtube import add_to_youtube, ytAuth
 from spotify import addToSpotify
 
 
-# Spotify config stuff
-with open("config/SPconfig.json") as f:
-    spotifyConfig = json.load(f)
-
-    spotifyClientId = spotifyConfig["clientID"]
-    spotifyClientSecret = spotifyConfig["clientSecret"]
-    spotifyBearer = spotifyConfig["bearer"]
-    spotifyPlaylistId = spotifyConfig["playlistID"]
-    spotifyCtr = spotifyConfig["ctr"]
-    spotifyUser = spotifyConfig["spotifyUser"]
+spotifyConfig = os.environ
+spotifyClientId = spotifyConfig["spotify_clientID"]
+spotifyClientSecret = spotifyConfig["spotify_clientSecret"]
+spotifyBearer = spotifyConfig["spotify_bearer"]
+spotifyPlaylistId = spotifyConfig["spotify_playlistID"]
+spotifyCtr = spotifyConfig["spotify_ctr"]
+spotifyUser = spotifyConfig["spotify_spotifyUser"]
 
 # Youtube config stuff
 youtubeConfig = os.environ
