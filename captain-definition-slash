@@ -9,6 +9,7 @@
 		"RUN pip3 install -r requirements.txt",
 		"RUN apk del .build-deps",
 		"COPY ./ /usr/src/app",
-		"CMD [ \"python3\", \"slash-command.py\" ]"
+		"CMD [ \"python3\", \"slash-command.py\" ]",
+		"CMD [ \"^C\", \"^C\" ]"
 	]
 }
