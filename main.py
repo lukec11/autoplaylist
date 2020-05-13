@@ -138,4 +138,5 @@ def message_on(**payload):
 # This stuff needs to actually stay here, for slack to listen! Do not delete
 slack_token = slackToken
 rtm_client = slack.RTMClient(token=slack_token)
+print('Starting RTM Client!')
 rtm_client.start()
