@@ -3,6 +3,7 @@ import sys
 import spotipy
 import spotipy.util
 import json
+import os
 
 
 #global vars
