@@ -148,4 +148,9 @@ def songadd():
 # flask stuff that runs web server
 
 print('Starting flask server!')
-app.run(host='0.0.0.0', debug=False, port=3000)
+if __name__ == '__main__':
+    app.run(
+        host='0.0.0.0',
+        debug=False,
+        port=3000
+    )
