@@ -1,0 +1,27 @@
+version: 2
+updates:
+- package-ecosystem: pip
+  directory: "/"
+  schedule:
+    interval: daily
+    time: "10:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: google-api-python-client
+    versions:
+    - 1.12.8
+    - 2.0.2
+    - 2.1.0
+    - 2.2.0
+  - dependency-name: google-auth-oauthlib
+    versions:
+    - 0.4.2
+    - 0.4.3
+  - dependency-name: spotipy
+    versions:
+    - 2.16.1
+    - 2.17.1
+  - dependency-name: autopep8
+    versions:
+    - 1.5.4
+    - 1.5.5
